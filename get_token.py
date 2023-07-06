@@ -2,5 +2,5 @@ import os
 
 
 def getToken():
-  my_secret = os.environ['TOKEN']
-  return my_secret
+    with open('TOKEN.txt','rt') as tokenFile:
+        return tokenFile.read()
