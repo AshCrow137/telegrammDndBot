@@ -1,31 +1,40 @@
 import telebot
 from telebot import types
 import random
+import os
+import background
 
-bot = telebot.TeleBot('6358163919:AAHO1lf5BJLxQtxLM7mKKwO5ONh_5qMXiI8')
-dice_list = [2,4,6,8,10,12,20,100]
+my_secret = os.environ['TOKEN']
+print(my_secret)
+bot = telebot.TeleBot(my_secret)
+
+dice_list = [2, 4, 6, 8, 10, 12, 20, 100]
+
+
 def create_dice_datalist():
-  result  =[]
+  result = []
   for dice in dice_list:
     result.append(f'dice_type={dice}')
   return result
 
+
 def create_dice_keyboard():
-    keyboard = []
-    column = []
-    for dice in dice_list:
-        button = types.InlineKeyboardButton(str(dice),callback_data=f'dice_type={dice}')
-        column.append(button)
-        if len(column)%3 == 0 and len(column)!=0:#делаем по 3 кнопки в ряд
-           keyboard.append(column)
-           
-           column = []
+  keyboard = []
+  column = []
+  for dice in dice_list:
+    button = types.InlineKeyboardButton(str(dice),
+                                        callback_data=f'dice_type={dice}')
+    column.append(button)
+    if len(column) % 3 == 0 and len(column) != 0:  #делаем по 3 кнопки в ряд
+      keyboard.append(column)
 
+      column = []
 
-    keyboard.append(column)        
-    print('dice keyboard created')    
-    markup = types.InlineKeyboardMarkup(keyboard) 
-    return markup
+  keyboard.append(column)
+  print('dice keyboard created')
+  markup = types.InlineKeyboardMarkup(keyboard)
+  return markup
+
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -38,22 +47,27 @@ def start_message(message):
       return
   bot.send_message(id, f'Привет, {name}')
 
+
 @bot.message_handler(commands=['r'])
 def create_dice_message(message):
-  bot.send_message(message.chat.id,text = 'Выберите куб',reply_markup=dice_markup)
+  bot.send_message(message.chat.id,
+                   text='Выберите куб',
+                   reply_markup=dice_markup)
 
-@bot.callback_query_handler(func=lambda call:True)
+
+@bot.callback_query_handler(func=lambda call: True)
 def catch_data(call):
   if not call:
-      return
+    return
   if call.data in dice_datalist:
-    random_number = random.randint(1,dice_dict[call.data])
+    random_number = random.randint(1, dice_dict[call.data])
     text = f' {random_number}'
-    bot.send_message(call.message.chat.id,text)
+    bot.send_message(call.message.chat.id, text)
+
 
 dice_markup = create_dice_keyboard()
 dice_datalist = create_dice_datalist()
-dice_dict = dict(zip(dice_datalist,dice_list))
-print(dice_dict)
+dice_dict = dict(zip(dice_datalist, dice_list))
+background.keep_alive()
 print('bot is on line')
 bot.infinity_polling(1)
