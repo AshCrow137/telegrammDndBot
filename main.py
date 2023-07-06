@@ -3,10 +3,9 @@ from telebot import types
 import random
 import os
 import background
-
-my_secret = os.environ['TOKEN']
-print(my_secret)
-bot = telebot.TeleBot(my_secret)
+import get_token
+token = get_token.getToken()
+bot = telebot.TeleBot(token)
 
 dice_list = [2, 4, 6, 8, 10, 12, 20, 100]
 
